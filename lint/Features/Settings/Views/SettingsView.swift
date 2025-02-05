@@ -8,6 +8,7 @@ struct SettingsView: View {
     @AppStorage("priorityKeywords") private var priorityKeywords = ""
     @State private var newKeyword = ""
     @State private var showingKeywordError = false
+    @State private var isAddingKeyword = false
     
     private var keywordsList: [String] {
         priorityKeywords.split(separator: ",")
@@ -27,35 +28,41 @@ struct SettingsView: View {
             }
             
             Section {
-                ForEach(keywordsList, id: \.self) { keyword in
-                    HStack {
-                        Text(keyword)
-                        
-                        Spacer()
-                        
-                        Button(role: .destructive) {
-                            removeKeyword(keyword)
-                        } label: {
-                            Label("Remove", systemImage: "minus.circle.fill")
-                                .labelStyle(.iconOnly)
-                                .foregroundStyle(.red)
-                        }
-                    }
+                if !keywordsList.isEmpty {
+                    TagListView(tags: keywordsList, onDelete: removeKeyword)
+                        .listRowInsets(EdgeInsets())
                 }
                 
-                HStack {
-                    TextField("Add keyword", text: $newKeyword)
-                        .textFieldStyle(.roundedBorder)
-                        .autocorrectionDisabled()
+                HStack(spacing: 8) {
+                    Image(systemName: "plus")
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(.secondary)
                     
-                    Button {
-                        addKeyword()
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundStyle(.blue)
+                    TextField("Add keyword", text: $newKeyword)
+                        .font(.body)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                        .onSubmit(addKeyword)
+                    
+                    if !newKeyword.trimmingCharacters(in: .whitespaces).isEmpty {
+                        Button {
+                            let generator = UIImpactFeedbackGenerator(style: .light)
+                            generator.impactOccurred()
+                            addKeyword()
+                        } label: {
+                            Image(systemName: "return")
+                                .font(.body.weight(.semibold))
+                                .foregroundStyle(.blue)
+                        }
+                        .transition(.scale.combined(with: .opacity))
                     }
-                    .disabled(newKeyword.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
+                .padding(10)
+                .background {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(Color(.systemFill))
+                }
+                .padding(.vertical, 4)
             } header: {
                 Text("Priority Keywords")
             } footer: {
@@ -93,6 +100,8 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Settings")
+        .navigationBarTitleDisplayMode(.large)
+        .toolbarRole(.browser)
         .alert("Invalid Keyword", isPresented: $showingKeywordError) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -106,13 +115,19 @@ struct SettingsView: View {
         
         // Check for commas since we use them as separators
         guard !trimmedKeyword.contains(",") else {
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.error)
             showingKeywordError = true
             return
         }
         
         let currentKeywords = keywordsList
         if !currentKeywords.contains(trimmedKeyword) {
-            priorityKeywords = (currentKeywords + [trimmedKeyword]).joined(separator: ",")
+            withAnimation(.spring(response: 0.3)) {
+                priorityKeywords = (currentKeywords + [trimmedKeyword]).joined(separator: ",")
+            }
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.success)
         }
         newKeyword = ""
     }
@@ -120,6 +135,8 @@ struct SettingsView: View {
     private func removeKeyword(_ keyword: String) {
         let updatedKeywords = keywordsList.filter { $0 != keyword }
         priorityKeywords = updatedKeywords.joined(separator: ",")
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.impactOccurred()
     }
 }
 

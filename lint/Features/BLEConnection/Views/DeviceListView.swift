@@ -24,7 +24,6 @@ struct DeviceListView: View {
                                     viewModel.disconnect()
                                 }
                             )
-                            .padding(.horizontal)
                             .padding(.vertical, 8)
                             
                             if device.peripheral.identifier != viewModel.priorityDevices.last?.peripheral.identifier {
@@ -43,7 +42,7 @@ struct DeviceListView: View {
                         Text("\(viewModel.priorityDevices.count)")
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.horizontal)
+                    .padding(.leading)
                     .padding(.vertical, 8)
                 }
             }
@@ -65,7 +64,6 @@ struct DeviceListView: View {
                                     viewModel.disconnect()
                                 }
                             )
-                            .padding(.horizontal)
                             .padding(.vertical, 8)
                             
                             if device.peripheral.identifier != viewModel.otherDevices.last?.peripheral.identifier {
@@ -84,7 +82,7 @@ struct DeviceListView: View {
                         Text("\(viewModel.otherDevices.count)")
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.horizontal)
+                    .padding(.leading)
                     .padding(.vertical, 8)
                 }
             }

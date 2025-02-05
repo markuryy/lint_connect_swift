@@ -33,7 +33,6 @@ struct MainView: View {
                                 // Function Selection
                                 Text("Available Functions")
                                     .font(.title2.weight(.medium))
-                                    .padding(.horizontal)
                                 
                                 FunctionList(
                                     functions: availableFunctions,
@@ -52,7 +51,6 @@ struct MainView: View {
                         VStack(alignment: .leading, spacing: 24) {
                             Text("Bluetooth Devices")
                                 .font(.title2.weight(.medium))
-                                .padding(.horizontal)
                             
                             if devicesViewModel.isScanning {
                                 HStack {
@@ -61,13 +59,11 @@ struct MainView: View {
                                     Text("Scanning for devices...")
                                         .foregroundStyle(.secondary)
                                 }
-                                .padding(.horizontal)
                             } else {
                                 Text("Pull to refresh or tap Scan to search for devices")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
-                                    .padding(.horizontal)
-                            }
+                                }
                             
                             DeviceListView(viewModel: devicesViewModel)
                                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -75,9 +71,11 @@ struct MainView: View {
                         }
                     }
                 }
-                .padding(.vertical)
+                .padding()
             }
-            .navigationTitle("lint")
+            .navigationTitle("lint connect")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbarRole(.browser)
             .toolbar {
                 // Settings always visible
                 ToolbarItem(placement: .primaryAction) {
@@ -99,7 +97,7 @@ struct MainView: View {
                             }
                         } label: {
                             Label(devicesViewModel.isScanning ? "Stop" : "Scan",
-                                  systemImage: devicesViewModel.isScanning ? "stop.fill" : "magnifying.glass")
+                                  systemImage: devicesViewModel.isScanning ? "stop.fill" : "magnifyingglass")
                         }
                         .tint(devicesViewModel.isScanning ? .red : nil)
                     }
@@ -167,12 +165,13 @@ struct MainView: View {
                 }
             }
         }
-        .padding()
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
         .background {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(Color(.secondarySystemBackground))
         }
-        .padding(.horizontal)
+        .contentPadding()
     }
     
     @ViewBuilder

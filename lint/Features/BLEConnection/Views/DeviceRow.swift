@@ -74,37 +74,40 @@ struct DeviceRow: View {
                     .buttonStyle(.borderedProminent)
             }
         }
+        .padding(.horizontal)
     }
 }
 
 #Preview {
-    VStack(spacing: 16) {
-        DeviceRow(
-            name: "Test Device",
-            isUartAdvertised: true,
-            isSelected: true,
-            connectionState: .connected,
-            onConnect: {},
-            onDisconnect: {}
-        )
-        
-        DeviceRow(
-            name: "Another Device",
-            isUartAdvertised: false,
-            isSelected: false,
-            connectionState: .disconnected,
-            onConnect: {},
-            onDisconnect: {}
-        )
-        
-        DeviceRow(
-            name: "Connecting Device",
-            isUartAdvertised: true,
-            isSelected: true,
-            connectionState: .connecting,
-            onConnect: {},
-            onDisconnect: {}
-        )
+    NavigationStack {
+        List {
+            DeviceRow(
+                name: "Test Device",
+                isUartAdvertised: true,
+                isSelected: true,
+                connectionState: .connected,
+                onConnect: {},
+                onDisconnect: {}
+            )
+            
+            DeviceRow(
+                name: "Another Device",
+                isUartAdvertised: false,
+                isSelected: false,
+                connectionState: .disconnected,
+                onConnect: {},
+                onDisconnect: {}
+            )
+            
+            DeviceRow(
+                name: "Connecting Device",
+                isUartAdvertised: true,
+                isSelected: true,
+                connectionState: .connecting,
+                onConnect: {},
+                onDisconnect: {}
+            )
+        }
+        .navigationTitle("Devices")
     }
-    .padding()
 }
