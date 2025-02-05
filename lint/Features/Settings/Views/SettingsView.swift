@@ -83,13 +83,17 @@ struct SettingsView: View {
             }
             
             Section("About") {
-                LabeledContent("Version", value: "1.0.0")
+                LabeledContent("Version", value: "1.1.1")
                 NavigationLink {
                     List {
                         Section {
-                            Link("Adafruit Industries",
-                                 destination: URL(string: "https://www.adafruit.com")!)
-                            Link("Bluefruit Documentation",
+                            Link("Markury",
+                                 destination: URL(string: "https://markury.dev")!)
+                            Link("GitHub",
+                                 destination: URL(string: "https://github.com/markuryy/lint_connect_swift")!)
+                            Link("Pocket Lint",
+                                 destination: URL(string: "https://github.com/markuryy/pocket_lint")!)
+                            Link("Bluefruit Connect",
                                  destination: URL(string: "https://learn.adafruit.com/bluefruit-le-connect")!)
                         }
                     }
