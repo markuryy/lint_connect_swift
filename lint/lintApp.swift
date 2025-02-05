@@ -4,7 +4,7 @@ import SwiftUI
 struct lintApp: App {
     var body: some Scene {
         WindowGroup {
-            MainTabView()
+            MainView()
         }
     }
 }

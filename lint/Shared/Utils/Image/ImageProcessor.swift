@@ -58,8 +58,11 @@ struct ImageProcessor {
     }
     
     static func scaleAndRotateImage(image: UIImage, resolution: CGSize, rotationDegrees: CGFloat, backgroundColor: UIColor) -> UIImage? {
-        // First rotate the image to the desired orientation
-        guard let rotatedImage = imageRotatedByDegrees(image: image, rotationDegrees: rotationDegrees) else { return nil }
+        // First normalize the image orientation
+        let normalizedImage = image.normalizedImage()
+        
+        // Then apply manual rotation
+        guard let rotatedImage = imageRotatedByDegrees(image: normalizedImage, rotationDegrees: rotationDegrees) else { return nil }
         
         // Calculate aspect-preserving dimensions
         let originalSize = rotatedImage.size
@@ -135,6 +138,19 @@ struct ImageProcessor {
 }
 
 extension UIImage {
+    func normalizedImage() -> UIImage {
+        if imageOrientation == .up {
+            return self
+        }
+        
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        draw(in: CGRect(origin: .zero, size: size))
+        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return normalizedImage ?? self
+    }
+    
     func pixelData32bitRGB() -> [UInt8]? {
         let bitsPerComponent = 8
         let size = self.size

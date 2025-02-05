@@ -17,17 +17,29 @@ class ImageTransferViewModel: ObservableObject {
     // Default settings
     @Published var selectedResolution = CGSize(width: 240, height: 240) {  // Default to 240x240
         didSet {
-            updateProcessedImage()
+            Task { @MainActor in
+                if originalImage != nil {
+                    updateProcessedImage()
+                }
+            }
         }
     }
     @Published var selectedColorSpace: ImageProcessor.ColorSpace = .rgb565 {  // Default to 16-bit
         didSet {
-            updateProcessedImage()
+            Task { @MainActor in
+                if originalImage != nil {
+                    updateProcessedImage()
+                }
+            }
         }
     }
     @Published var rotationDegrees: CGFloat = 0 {
         didSet {
-            updateProcessedImage()
+            Task { @MainActor in
+                if originalImage != nil {
+                    updateProcessedImage()
+                }
+            }
         }
     }
     
@@ -45,8 +57,18 @@ class ImageTransferViewModel: ObservableObject {
     func handleImageSelection(_ image: UIImage) async {
         do {
             isProcessing = true
-            originalImage = image
-            rotationDegrees = 0  // Reset rotation when new image selected
+            // Clear current state
+            processedImage = nil
+            rotationDegrees = 0
+            
+            // Store original image with proper orientation
+            if image.imageOrientation != .up {
+                originalImage = image.normalizedImage()
+            } else {
+                originalImage = image
+            }
+            
+            // Process the new image
             updateProcessedImage()
         } catch {
             errorMessage = "Failed to process image: \(error.localizedDescription)"
@@ -54,8 +76,19 @@ class ImageTransferViewModel: ObservableObject {
         isProcessing = false
     }
     
+    func clearImage() {
+        selectedItem = nil
+        originalImage = nil
+        processedImage = nil
+        rotationDegrees = 0
+        transferProgress = 0
+        isProcessing = false
+        isTransferring = false
+        errorMessage = nil
+    }
+    
     func transferImage() {
-        // Use the processed image for transfer, just like Bluefruit
+        // Use the processed image for transfer
         guard let processedImage = processedImage else { return }
         
         Task {
@@ -106,15 +139,19 @@ class ImageTransferViewModel: ObservableObject {
     // MARK: - Private Methods
     private func updateProcessedImage() {
         guard let image = originalImage else { return }
+        isProcessing = true
         
-        // Process image using exact Bluefruit scaling
-        if let processedUIImage = ImageProcessor.scaleAndRotateImage(
-            image: image,
-            resolution: selectedResolution,
-            rotationDegrees: rotationDegrees,
-            backgroundColor: .black
-        ) {
-            processedImage = processedUIImage
+        Task { @MainActor in
+            // Always process from the original image to maintain quality
+            if let processedUIImage = ImageProcessor.scaleAndRotateImage(
+                image: image,
+                resolution: selectedResolution,
+                rotationDegrees: rotationDegrees,
+                backgroundColor: .black
+            ) {
+                processedImage = processedUIImage
+            }
+            isProcessing = false
         }
     }
 }
