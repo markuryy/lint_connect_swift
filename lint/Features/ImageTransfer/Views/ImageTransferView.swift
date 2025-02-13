@@ -22,7 +22,7 @@ struct ImageTransferView: View {
                             .fill(Color(.secondarySystemBackground))
                     }
                     .contentPadding()
-                } else if viewModel.processedImage == nil {
+                } else if viewModel.originalImage == nil {
                     // Step 1: Select Image
                     PhotosPicker(selection: $viewModel.selectedItem,
                                matching: .images,
@@ -87,12 +87,20 @@ struct ImageTransferView: View {
                                     
                                     Spacer()
                                     
+                                    Button {
+                                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                                        generator.impactOccurred()
+                                        viewModel.isCropping = true
+                                    } label: {
+                                        Label("Crop", systemImage: "crop")
+                                    }
+                                    
                                     Button(role: .destructive) {
                                         let generator = UIImpactFeedbackGenerator(style: .medium)
                                         generator.impactOccurred()
                                         viewModel.clearImage()
                                     } label: {
-                                        Label("Clear Image", systemImage: "xmark.circle.fill")
+                                        Label("Clear", systemImage: "xmark.circle.fill")
                                             .foregroundStyle(.red)
                                     }
                                 }
@@ -211,6 +219,17 @@ struct ImageTransferView: View {
         } message: {
             if let error = viewModel.errorMessage {
                 Text(error)
+            }
+        }
+        .fullScreenCover(isPresented: $viewModel.isCropping) {
+            if let image = viewModel.originalImage {
+                ImageCropView(
+                    image: image,
+                    scale: $viewModel.imageScale,
+                    offset: $viewModel.imageOffset,
+                    onCrop: viewModel.finishCropping,
+                    onCancel: { viewModel.isCropping = false }
+                )
             }
         }
     }

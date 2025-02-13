@@ -13,6 +13,10 @@ class ImageTransferViewModel: ObservableObject {
     @Published var isTransferring = false
     @Published var transferProgress: Double = 0
     @Published var errorMessage: String?
+    @Published var isCropping = false
+    @Published var cropRect: CGRect = .zero
+    @Published var imageScale: CGFloat = 1.0
+    @Published var imageOffset: CGSize = .zero
     
     // Default settings
     @Published var selectedResolution = CGSize(width: 240, height: 240) {  // Default to 240x240
@@ -49,6 +53,7 @@ class ImageTransferViewModel: ObservableObject {
         CGSize(width: 128, height: 128),
         CGSize(width: 240, height: 240),  // Default
         CGSize(width: 320, height: 320),
+        CGSize(width: 360, height: 360),
         CGSize(width: 480, height: 480)
     ]
     
@@ -60,6 +65,9 @@ class ImageTransferViewModel: ObservableObject {
             // Clear current state
             processedImage = nil
             rotationDegrees = 0
+            cropRect = .zero
+            imageScale = 1.0
+            imageOffset = .zero
             
             // Store original image with proper orientation
             if image.imageOrientation != .up {
@@ -68,12 +76,12 @@ class ImageTransferViewModel: ObservableObject {
                 originalImage = image
             }
             
-            // Process the new image
+            // Process the image immediately
             updateProcessedImage()
         } catch {
             errorMessage = "Failed to process image: \(error.localizedDescription)"
+            isProcessing = false
         }
-        isProcessing = false
     }
     
     func clearImage() {
@@ -85,6 +93,10 @@ class ImageTransferViewModel: ObservableObject {
         isProcessing = false
         isTransferring = false
         errorMessage = nil
+        isCropping = false
+        cropRect = .zero
+        imageScale = 1.0
+        imageOffset = .zero
     }
     
     func transferImage() {
@@ -134,6 +146,12 @@ class ImageTransferViewModel: ObservableObject {
                 isTransferring = false
             }
         }
+    }
+    
+    func finishCropping(croppedImage: UIImage) {
+        originalImage = croppedImage
+        isCropping = false
+        updateProcessedImage()
     }
     
     // MARK: - Private Methods
