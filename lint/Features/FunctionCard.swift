@@ -17,7 +17,9 @@ struct Function: Identifiable, Hashable {
 }
 
 enum FunctionType: Hashable {
+    case messageArray
     case imageTransfer
+    case textRenderer
     // Add more function types here
 }
 

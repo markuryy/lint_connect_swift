@@ -160,6 +160,15 @@ struct ImageTransferView: View {
                                         .pickerStyle(.segmented)
                                         .frame(maxWidth: .infinity)
                                     }
+                                    
+                                    // LVGL Mode Toggle
+                                    HStack {
+                                        Text("LVGL Mode")
+                                            .frame(width: 100, alignment: .leading)
+                                        
+                                        Toggle("", isOn: $viewModel.useLVGLMode)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
                                 }
                             }
                             .padding()

@@ -3,36 +3,50 @@ import CoreBluetooth
 
 struct MainView: View {
     @StateObject private var devicesViewModel = DevicesViewModel()
+    @StateObject private var messageArrayViewModel = MessageArrayViewModel()
     @State private var selectedFunction: Function?
     @State private var showingSettings = false
     
     private let availableFunctions = [
         Function(
+            name: "Message Array",
+            icon: "text.bubble.fill",
+            description: "Create and send multiple text messages with custom styling",
+            type: .messageArray
+        ),
+        Function(
             name: "Image Transfer",
             icon: "photo.on.rectangle.angled",
             description: "Transfer images to your device with custom resolution and color settings",
             type: .imageTransfer
+        ),
+        Function(
+            name: "Text Renderer",
+            icon: "text.viewfinder",
+            description: "Create and send text-based images with custom styling",
+            type: .textRenderer
         )
     ]
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    if let device = devicesViewModel.selectedDevice {
-                        // Connected Device Status
-                        VStack(alignment: .leading, spacing: 24) {
-                            connectedDeviceView(device)
-                                .transition(.move(edge: .top).combined(with: .opacity))
-                            
-                            if let function = selectedFunction {
-                                // Selected Function View
-                                selectedFunctionView(function)
-                                    .transition(.move(edge: .trailing).combined(with: .opacity))
-                            } else {
-                                // Function Selection
+            VStack(spacing: 0) {
+                if let device = devicesViewModel.selectedDevice {
+                    // Connected Device Status
+                    connectedDeviceView(device)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    
+                    if let function = selectedFunction {
+                        // Selected Function View
+                        selectedFunctionView(function)
+                            .transition(.move(edge: .trailing).combined(with: .opacity))
+                    } else {
+                        // Function Selection
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 24) {
                                 Text("Available Functions")
                                     .font(.title2.weight(.medium))
+                                    .padding(.horizontal)
                                 
                                 FunctionList(
                                     functions: availableFunctions,
@@ -45,12 +59,16 @@ struct MainView: View {
                                     }
                                 )
                             }
+                            .padding(.vertical)
                         }
-                    } else {
-                        // No Device Connected - Show Device List
+                    }
+                } else {
+                    // No Device Connected - Show Device List
+                    ScrollView {
                         VStack(alignment: .leading, spacing: 24) {
                             Text("Bluetooth Devices")
                                 .font(.title2.weight(.medium))
+                                .padding(.horizontal)
                             
                             if devicesViewModel.isScanning {
                                 HStack {
@@ -59,19 +77,20 @@ struct MainView: View {
                                     Text("Scanning for devices...")
                                         .foregroundStyle(.secondary)
                                 }
+                                .padding(.horizontal)
                             } else {
                                 Text("Pull to refresh or tap Scan to search for devices")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
-                                }
+                                    .padding(.horizontal)
+                            }
                             
                             DeviceListView(viewModel: devicesViewModel)
                                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                                .transition(.move(edge: .bottom).combined(with: .opacity))
                         }
+                        .padding(.vertical)
                     }
                 }
-                .padding()
             }
             .navigationTitle("lint connect")
             .navigationBarTitleDisplayMode(.large)
@@ -171,14 +190,19 @@ struct MainView: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(Color(.secondarySystemBackground))
         }
-        .contentPadding()
+        .padding()
     }
     
     @ViewBuilder
     private func selectedFunctionView(_ function: Function) -> some View {
         switch function.type {
+        case .messageArray:
+            MessageArrayView(viewModel: messageArrayViewModel)
         case .imageTransfer:
             ImageTransferView()
+                .padding(.horizontal)
+        case .textRenderer:
+            TextRendererView()
                 .padding(.horizontal)
         }
     }

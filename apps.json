@@ -1,0 +1,60 @@
+{
+    "name": "lint connect",
+    "subtitle": "A modern iOS companion app for your pocket lint device",
+    "description": "A SwiftUI-powered iOS app that connects to your pocket lint device over Bluetooth LE. Currently focused on transferring images to your device's display, with a clean and modern interface.\n\nFeatures:\n- Clean Device Management: Quickly find and connect to your pocket lint\n- Simple Image Transfer: Select, preview, and send images to your device\n- Modern UI: Built with SwiftUI for a native iOS feel\n- Future-Ready: Structured to support more features as the pocket lint evolves",
+    "iconURL": "https://raw.githubusercontent.com/markuryy/lint_connect_swift/main/lint/Assets.xcassets/AppIcon.appiconset/Icon-Dark-1024x1024.png",
+    "headerURL": "https://raw.githubusercontent.com/markuryy/lint_connect_swift/main/header.png",
+    "website": "https://markury.dev",
+    "tintColor": "#4185A9",
+    "featuredApps": [
+        "markury.lint"
+    ],
+    "apps": [
+        {
+            "name": "lint connect",
+            "bundleIdentifier": "markury.lint",
+            "developerName": "Markury",
+            "subtitle": "A modern iOS companion app for your pocket lint device",
+            "localizedDescription": "A SwiftUI-powered iOS app that connects to your pocket lint device over Bluetooth LE. Currently focused on transferring images to your device's display, with a clean and modern interface.\n\nFeatures:\n- Clean Device Management: Quickly find and connect to your pocket lint\n- Simple Image Transfer: Select, preview, and send images to your device\n- Modern UI: Built with SwiftUI for a native iOS feel\n- Future-Ready: Structured to support more features as the pocket lint evolves",
+            "iconURL": "https://raw.githubusercontent.com/markuryy/lint_connect_swift/main/lint/Assets.xcassets/AppIcon.appiconset/Icon-Dark-1024x1024.png",
+            "tintColor": "#4185A9",
+            "category": "utilities",
+            "screenshots": [
+                "https://raw.githubusercontent.com/markuryy/lint_connect_swift/main/screenshots/screenshot1.png",
+                "https://raw.githubusercontent.com/markuryy/lint_connect_swift/main/screenshots/screenshot2.png",
+                "https://raw.githubusercontent.com/markuryy/lint_connect_swift/main/screenshots/screenshot3.png"
+            ],
+            "versions": [
+                {
+                    "version": "1.2.0",
+                    "date": "2024-02-04",
+                    "localizedDescription": "Initial AltStore release",
+                    "downloadURL": "https://github.com/markuryy/lint_connect_swift/releases/download/v1.2.0/lint.ipa",
+                    "size": 10000000,
+                    "minOSVersion": "18.0"
+                }
+            ],
+            "appPermissions": {
+                "entitlements": [
+                    "com.apple.security.application-groups"
+                ],
+                "privacy": {
+                    "NSBluetoothAlwaysUsageDescription": "Bluetooth is used to connect to and transfer images to BLE devices",
+                    "NSBluetoothPeripheralUsageDescription": "Bluetooth is used to connect to and transfer images to BLE devices",
+                    "NSPhotoLibraryUsageDescription": "Access to photos is needed to select images for transfer"
+                }
+            }
+        }
+    ],
+    "news": [
+        {
+            "title": "lint connect Now Available on AltStore",
+            "identifier": "altstore_release",
+            "caption": "Get lint connect directly through AltStore!",
+            "date": "2024-02-04",
+            "tintColor": "#4185A9",
+            "notify": true,
+            "appID": "markury.lint"
+        }
+    ]
+} 

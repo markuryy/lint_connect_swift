@@ -47,6 +47,16 @@ class ImageTransferViewModel: ObservableObject {
         }
     }
     
+    // LVGL mode settings
+    @Published var useLVGLMode: Bool = true {  // Default to LVGL mode
+        didSet {
+            if useLVGLMode {
+                // Force 360x360 resolution in LVGL mode
+                selectedResolution = CGSize(width: 360, height: 360)
+            }
+        }
+    }
+    
     // Available resolutions (matching Bluefruit)
     let availableResolutions: [CGSize] = [
         CGSize(width: 64, height: 64),
@@ -116,28 +126,66 @@ class ImageTransferViewModel: ObservableObject {
                     rotationDegrees: 0 // Image is already rotated
                 )
                 
-                // Prepare command packet (match Bluefruit's format)
-                var command: [UInt8] = [0x21, 0x49] // !I
-                command.append(selectedColorSpace == .rgb888 ? 24 : 16)  // Color space
-                
-                // Use little-endian byte order for width and height
-                let width = UInt16(selectedResolution.width)
-                let height = UInt16(selectedResolution.height)
-                command.append(contentsOf: [UInt8(width & 0xFF), UInt8(width >> 8)])
-                command.append(contentsOf: [UInt8(height & 0xFF), UInt8(height >> 8)])
-                command.append(contentsOf: [UInt8](imageData))
-                
-                // Add CRC (match Bluefruit's exact CRC calculation)
-                var data = Data(command)
-                var crc: UInt8 = 0
-                for byte in data {
-                    crc = crc &+ byte
+                if useLVGLMode {
+                    // LVGL mode protocol
+                    var startCmd: [UInt8] = [
+                        0x03, // CMD_IMAGE_START
+                        UInt8((Int(selectedResolution.width) >> 8) & 0xFF),
+                        UInt8(Int(selectedResolution.width) & 0xFF),
+                        UInt8((Int(selectedResolution.height) >> 8) & 0xFF),
+                        UInt8(Int(selectedResolution.height) & 0xFF),
+                        selectedColorSpace == .rgb888 ? 24 : 16,
+                        UInt8((imageData.count >> 24) & 0xFF),
+                        UInt8((imageData.count >> 16) & 0xFF),
+                        UInt8((imageData.count >> 8) & 0xFF),
+                        UInt8(imageData.count & 0xFF)
+                    ]
+                    
+                    // Send START command
+                    bleManager.sendData(Data(startCmd), withResponse: true)
+                    
+                    // Send image data in chunks
+                    let chunkSize = 512 // BLE MTU size - 3 for ATT header
+                    var offset = 0
+                    
+                    while offset < imageData.count {
+                        let remainingBytes = imageData.count - offset
+                        let currentChunkSize = min(chunkSize - 1, remainingBytes) // -1 for command byte
+                        
+                        var chunk: [UInt8] = [0x04] // CMD_IMAGE_DATA
+                        let endIndex = offset + currentChunkSize
+                        chunk.append(contentsOf: imageData[offset..<endIndex])
+                        
+                        bleManager.sendData(Data(chunk), withResponse: true)
+                        offset += currentChunkSize
+                        
+                        // Update progress
+                        transferProgress = Double(offset) / Double(imageData.count)
+                    }
+                } else {
+                    // Original Bluefruit protocol
+                    var command: [UInt8] = [0x21, 0x49] // !I
+                    command.append(selectedColorSpace == .rgb888 ? 24 : 16)  // Color space
+                    
+                    // Use little-endian byte order for width and height
+                    let width = UInt16(selectedResolution.width)
+                    let height = UInt16(selectedResolution.height)
+                    command.append(contentsOf: [UInt8(width & 0xFF), UInt8(width >> 8)])
+                    command.append(contentsOf: [UInt8(height & 0xFF), UInt8(height >> 8)])
+                    command.append(contentsOf: [UInt8](imageData))
+                    
+                    // Add CRC (match Bluefruit's exact CRC calculation)
+                    var data = Data(command)
+                    var crc: UInt8 = 0
+                    for byte in data {
+                        crc = crc &+ byte
+                    }
+                    crc = ~crc  // One's complement
+                    data.append(crc)
+                    
+                    // Send data with response
+                    bleManager.sendData(data, withResponse: true)
                 }
-                crc = ~crc  // One's complement
-                data.append(crc)
-                
-                // Send data with response (match Bluefruit's packet handling)
-                bleManager.sendData(data, withResponse: true)
                 
                 isTransferring = false
                 transferProgress = 1.0
